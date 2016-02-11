@@ -11,3 +11,6 @@ const myDraggableElem = Object.create(dragElem);
 myDraggableElem.inint(`.my-selector`);
 ```
 
+##Try it out
+
+http://codepen.io/tevko/pen/VeqNYZ?editors=0010
