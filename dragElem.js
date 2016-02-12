@@ -13,49 +13,54 @@ window.dragelem = {
 	settings: {
 		draggingAllowed: false,
 		xPos: 0,
-		yPos: 0
+		yPos: 0,
+		opts: undefined,
+		elem: undefined
 	},
 	init(selector, opts = {'stay' : false, 'accelerateHardware' : false}) {
 		this.settings.opts = opts;
-		const s = document.querySelector(selector);
-		if (opts.accelrateHardware) {
-			s.style.willChange = 'transform';
+		this.settings.elem = document.querySelector(selector);
+		if (opts.accelerateHardware) {
+			this.settings.elem.style.willChange = 'transform';
 		}
 		//mouse down or touch start
-		s.addEventListener('mousedown', this.allowDragging.bind(this, s));
-		s.addEventListener('touchstart', this.allowDragging.bind(this, s));
-		//mouse or touch move
-		s.addEventListener('mousemove', this.drag.bind(this, s));
-		s.addEventListener('touchmove', this.drag.bind(this, s));
-		s.addEventListener('mouseleave', this.preventDragging.bind(this, s));
-		//mouseup or touch end
-		document.body.addEventListener('mouseup', this.preventDragging.bind(this, s));
-		document.body.addEventListener('touchend', this.preventDragging.bind(this, s))
+		this.settings.elem.addEventListener('mousedown', this.allowDragging);
+		this.settings.elem.addEventListener('touchstart', this.allowDragging);
 	},
-	allowDragging(elem, e) {
+	allowDragging(e) {
 		const cords = e.clientY === undefined ? e.touches[0] : e;
-		if (this.settings.opts.stay === false || elem.style.transform === '') {
-			this.settings.xPos = cords.clientX;
-			this.settings.yPos = cords.clientY;
+		if (dragelem.settings.opts.stay === false || dragelem.settings.elem.style.transform === '') {
+			dragelem.settings.xPos = cords.clientX;
+			dragelem.settings.yPos = cords.clientY;
 		}
-		this.settings.draggingAllowed = true;
+		dragelem.settings.draggingAllowed = true;
+		//add all event listeners
+		dragelem.settings.elem.addEventListener('mousemove', dragelem.drag);
+		dragelem.settings.elem.addEventListener('touchmove', dragelem.drag);
+		document.body.addEventListener('mouseup', dragelem.preventDragging);
+		document.body.addEventListener('touchend', dragelem.preventDragging);
+		dragelem.settings.elem.addEventListener('mouseleave', dragelem.preventDragging);
 	},
-	preventDragging(elem, e) {
-		if (this.settings.opts.stay === false) {
-			if (elem !== document.body) {
-				elem.style.transform = 'translateY(0) translateX(0)';
+	preventDragging(e) {
+		if (dragelem.settings.opts.stay === false) {
+			if (dragelem.settings.elem !== document.body) {
+				dragelem.settings.elem.style.transform = 'translateY(0) translateX(0)';
 			}
-			this.settings.xPos = 0;
-			this.settings.yPos = 0;
+			dragelem.settings.xPos = 0;
+			dragelem.settings.yPos = 0;
 		}
-		this.settings.draggingAllowed = false;
+		dragelem.settings.draggingAllowed = false;
+		//remove all event listeners
+		dragelem.settings.elem.removeEventListener('mousemove', dragelem.drag);
+		dragelem.settings.elem.removeEventListener('touchmove',dragelem.drag);
+		document.body.removeEventListener('mouseup', dragelem.preventDragging);
+		document.body.removeEventListener('touchend', dragelem.preventDragging);
+		dragelem.settings.elem.removeEventListener('mouseleave', dragelem.preventDragging);
 	},
-	drag(elem, e) {
+	drag(e) {
 		const cords = e.clientY === undefined ? e.touches[0] : e;
-		if (this.settings.draggingAllowed) {
-			requestAnimationFrame(() => {
-				elem.style.transform = `translateY(${Math.floor(cords.clientY - this.settings.yPos)}px) translateX(${Math.floor(cords.clientX - this.settings.xPos)}px)`;
-			});	
-		}
+		requestAnimationFrame(() => {
+			dragelem.settings.elem.style.transform = `translateY(${Math.floor(cords.clientY - dragelem.settings.yPos)}px) translateX(${Math.floor(cords.clientX - dragelem.settings.xPos)}px)`;
+		});	
 	}
 };
