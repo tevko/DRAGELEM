@@ -17,7 +17,7 @@ window.dragelem = {
 		opts: undefined,
 		elem: undefined
 	},
-	init(selector, opts = {'stay' : false, 'accelerateHardware' : false}) {
+	init(selector, opts = {'stay' : false, 'accelerateHardware' : false, 'callBack' : undefined}) {
 		this.settings.opts = opts;
 		this.settings.elem = document.querySelector(selector);
 		if (opts.accelerateHardware) {
@@ -56,6 +56,9 @@ window.dragelem = {
 		document.body.removeEventListener('mouseup', dragelem.preventDragging);
 		document.body.removeEventListener('touchend', dragelem.preventDragging);
 		dragelem.settings.elem.removeEventListener('mouseleave', dragelem.preventDragging);
+		if (dragelem.settings.opts.callBack !== undefined) {
+			dragelem.settings.opts.callBack.apply(dragelem.settings.elem);
+		}
 	},
 	drag(e) {
 		const cords = e.clientY === undefined ? e.touches[0] : e;
