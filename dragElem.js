@@ -11,59 +11,50 @@
 
 window.dragelem = {
 	settings: {
-		draggingAllowed: false,
-		xPos: 0,
-		yPos: 0,
-		opts: undefined,
-		elem: undefined
+		elem: undefined,
+		parent: undefined,
+		startCords: undefined,
+		lastCords: {x: 0, y: 0},
+		callBack: undefined
 	},
-	init(selector, opts = {'stay' : false, 'accelerateHardware' : false, 'callBack' : undefined}) {
-		this.settings.opts = opts;
+	init(selector, cb) {
 		this.settings.elem = document.querySelector(selector);
-		if (opts.accelerateHardware) {
-			this.settings.elem.style.willChange = 'transform';
+		this.settings.parent = document.querySelector(selector).parentElement;
+		this.settings.parent.addEventListener('mousedown', this.enableDraging);
+		this.settings.parent.addEventListener('touchstart', this.enableDraging);
+		if (cb) {
+			this.settings.callBack = cb;
 		}
-		//mouse down or touch start
-		this.settings.elem.addEventListener('mousedown', this.allowDragging);
-		this.settings.elem.addEventListener('touchstart', this.allowDragging);
 	},
-	allowDragging(e) {
-		const cords = e.clientY === undefined ? e.touches[0] : e;
-		if (dragelem.settings.opts.stay === false || dragelem.settings.elem.style.transform === '') {
-			dragelem.settings.xPos = cords.clientX;
-			dragelem.settings.yPos = cords.clientY;
-		}
-		dragelem.settings.draggingAllowed = true;
-		//add all event listeners
-		dragelem.settings.elem.addEventListener('mousemove', dragelem.drag);
-		dragelem.settings.elem.addEventListener('touchmove', dragelem.drag);
-		document.body.addEventListener('mouseup', dragelem.preventDragging);
-		document.body.addEventListener('touchend', dragelem.preventDragging);
-		dragelem.settings.elem.addEventListener('mouseleave', dragelem.preventDragging);
-	},
-	preventDragging(e) {
-		if (dragelem.settings.opts.stay === false) {
-			if (dragelem.settings.elem !== document.body) {
-				dragelem.settings.elem.style.transform = 'translateY(0) translateX(0)';
-			}
-			dragelem.settings.xPos = 0;
-			dragelem.settings.yPos = 0;
-		}
-		dragelem.settings.draggingAllowed = false;
-		//remove all event listeners
-		dragelem.settings.elem.removeEventListener('mousemove', dragelem.drag);
-		dragelem.settings.elem.removeEventListener('touchmove',dragelem.drag);
-		document.body.removeEventListener('mouseup', dragelem.preventDragging);
-		document.body.removeEventListener('touchend', dragelem.preventDragging);
-		dragelem.settings.elem.removeEventListener('mouseleave', dragelem.preventDragging);
-		if (dragelem.settings.opts.callBack !== undefined) {
-			dragelem.settings.opts.callBack.apply(dragelem.settings.elem);
-		}
+	enableDraging(e) {
+		dragelem.settings.startCords = e.clientY === undefined ? {x: e.touches[0].pageX, y: e.touches[0].pageY}	: {x: e.pageX, y: e.pageY};
+		dragelem.settings.parent.addEventListener('mousemove', dragelem.drag);
+		dragelem.settings.parent.addEventListener('touchmove', dragelem.drag);
+		dragelem.settings.elem.style.willChange = 'transform';
+		document.body.addEventListener('mouseup', dragelem.removeEventListeners);
+		document.body.addEventListener('touchend', dragelem.removeEventListeners);
 	},
 	drag(e) {
 		const cords = e.clientY === undefined ? e.touches[0] : e;
-		requestAnimationFrame(() => {
-			dragelem.settings.elem.style.transform = `translateY(${Math.floor(cords.clientY - dragelem.settings.yPos)}px) translateX(${Math.floor(cords.clientX - dragelem.settings.xPos)}px)`;
-		});	
+		const xCords = (cords.pageX - dragelem.settings.startCords.x) + dragelem.settings.lastCords.x;
+		const yCords = (cords.pageY - dragelem.settings.startCords.y) + dragelem.settings.lastCords.y;
+		
+		e.preventDefault();
+		requestAnimationFrame( () => dragelem.settings.elem.style.transform = `translateY(${yCords}px) translateX(${xCords}px)`);	
+	},
+	removeEventListeners(e) {
+		const cords = e.clientY === undefined ? e.changedTouches[0] : e;
+		
+		dragelem.settings.parent.removeEventListener('mousemove', dragelem.drag);
+		document.body.removeEventListener('mouseup', dragelem.removeEventListeners);
+		document.body.removeEventListener('touchend', dragelem.removeEventListeners);
+		dragelem.settings.parent.removeEventListener('touchmove', dragelem.drag);
+		dragelem.settings.elem.style.willChange = '';
+		dragelem.settings.lastCords.x += (cords.pageX - dragelem.settings.startCords.x);
+		dragelem.settings.lastCords.y += (cords.pageY - dragelem.settings.startCords.y);
+
+		if (dragelem.settings.callBack !== undefined) {
+			dragelem.settings.callBack.call(dragelem.settings.elem, e);
+		}
 	}
 };
