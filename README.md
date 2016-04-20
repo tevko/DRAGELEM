@@ -13,26 +13,14 @@ myDraggableElem.inint(`.my-selector`);
 
 ##Options
 
-You can pass in an object with options.
+You can pass in a callback function.
 
 ```
 const myDraggableElem = Object.create(dragElem);
 
-myDraggableElem.init(`.my-selector`, {stay : true, accelerateHardware : true});
-```
-
-
-###stay
-If set to true, the element will remain in place when released. If set to false the element will return to its original position when released.
-
-###accelerateHardware
-If set to true, the `will-change: transform;` css property will be applied to the element
-
-###callBack
-You can pass a callback function to fire after the element is released.
-
-```
-myDraggableElem.init(`.my-selector`, {callBack : function() { console.log(this) });
+myDraggableElem.init(`.my-selector`, e => {
+  console.log(this, e);
+});
 ```
 
 ##Does it do the mobile things?
@@ -41,4 +29,4 @@ Yes. It does the mobile things.
 
 ##Try it out
 
-http://codepen.io/tevko/pen/VeqNYZ?editors=0010
+http://codepen.io/tevko/full/qZYwdG
