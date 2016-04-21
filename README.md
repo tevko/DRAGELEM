@@ -6,6 +6,13 @@ A simple ES6 library that allows click/touch &amp; drag on dom elements. **541 b
 ##TO USE
 
 ```
+
+<div class=" _JS_zoomParent"> <!-- parent -->
+	<div class="_JS_ZoomObj"> <!-- thing to drag -->
+		<img class="_JS_ZoomImg" src="http://vignette2.wikia.nocookie.net/uncyclopedia/images/b/b4/Count-chocula.jpeg/revision/latest?cb=20110419172355"> <!-- contents -->
+	</div>
+</div>
+
 const myDraggableElem = Object.create(dragElem);
 
 myDraggableElem.inint(`.my-selector`);
