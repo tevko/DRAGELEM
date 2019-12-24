@@ -3,7 +3,7 @@
 # DRAGELEM
 A simple ES6 library that allows click/touch &amp; drag on dom elements. **541 bytes minified + gzipped.**
 
-##TO USE
+## TO USE
 
 ```
 
@@ -18,7 +18,7 @@ const myDraggableElem = Object.create(dragElem);
 myDraggableElem.inint(`.my-selector`);
 ```
 
-##Options
+## Options
 
 You can pass in a callback function.
 
@@ -30,10 +30,10 @@ myDraggableElem.init(`.my-selector`, e => {
 });
 ```
 
-##Does it do the mobile things?
+## Does it do the mobile things?
 Yes. It does the mobile things.
 
 
-##Try it out
+## Try it out
 
 http://codepen.io/tevko/full/qZYwdG
